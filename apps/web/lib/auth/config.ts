@@ -127,4 +127,23 @@ export const auth = betterAuth({
       generateId: () => nanoid(),
     },
   },
+
+  databaseHooks: {
+    session: {
+      create: {
+        after: async (session) => {
+          const allowedEmails = (process.env.ALLOWED_EMAILS ?? "")
+            .split(",")
+            .map((e: string) => e.trim().toLowerCase())
+            .filter(Boolean);
+          if (allowedEmails.length > 0) {
+            const email = (session.user as any)?.email?.toLowerCase() ?? "";
+            if (email && !allowedEmails.includes(email)) {
+              throw new Error("Access denied: email not allowed");
+            }
+          }
+        },
+      },
+    },
+  },
 });
