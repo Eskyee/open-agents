@@ -91,7 +91,7 @@ export const auth = betterAuth({
       image: "avatarUrl",
     },
     additionalFields: {
-      username: { type: "string", required: true },
+      username: { type: "string", required: false },
       lastLoginAt: { type: "date", required: false },
     },
   },
