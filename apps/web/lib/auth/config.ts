@@ -93,7 +93,11 @@ export const auth = betterAuth({
       image: "avatarUrl",
     },
     additionalFields: {
-      username: { type: "string", required: true },
+      // Not required: OAuth providers (Vercel/GitHub) don't return a username,
+      // so requiring it here makes Better Auth reject user creation with
+      // "unable_to_create_user". We derive it from the email instead (see the
+      // user.create.before hook below).
+      username: { type: "string", required: false },
       lastLoginAt: { type: "date", required: false },
     },
   },
@@ -131,6 +135,24 @@ export const auth = betterAuth({
   },
 
   databaseHooks: {
+    user: {
+      create: {
+        before: async (user) => {
+          // OAuth providers don't supply a username, so derive a safe one from
+          // the email before the row is inserted. Without this the user is
+          // created with an empty username (the column default).
+          const u = user as { username?: string; email?: string };
+          if (!u.username && u.email) {
+            const username = u.email
+              .split("@")[0]
+              .toLowerCase()
+              .replace(/[^a-z0-9]/g, "");
+            return { data: { ...user, username } };
+          }
+          return { data: user };
+        },
+      },
+    },
     session: {
       create: {
         after: async (session) => {
@@ -147,8 +169,14 @@ export const auth = betterAuth({
           // Generate username from email if not set
           const user = session.user as any;
           if (user && !user.username && user.email) {
-            const username = user.email.split("@")[0].toLowerCase().replace(/[^a-z0-9]/g, "");
-            await db.update(users).set({ username }).where(eq(users.id, user.id));
+            const username = user.email
+              .split("@")[0]
+              .toLowerCase()
+              .replace(/[^a-z0-9]/g, "");
+            await db
+              .update(users)
+              .set({ username })
+              .where(eq(users.id, user.id));
           }
         },
       },
