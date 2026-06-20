@@ -53,7 +53,7 @@ type SharedSession = {
 };
 
 type SharedBy = {
-  username: string;
+  username: string | null;
   name: string | null;
   avatarUrl: string | null;
 } | null;
