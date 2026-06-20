@@ -1,7 +1,9 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nanoid } from "nanoid";
+import { eq } from "drizzle-orm";
 import { db } from "@/lib/db/client";
+import { users } from "@/lib/db/schema";
 import * as schema from "@/lib/db/schema";
 
 function normalizeHost(value?: string): string | null {
@@ -91,7 +93,7 @@ export const auth = betterAuth({
       image: "avatarUrl",
     },
     additionalFields: {
-      username: { type: "string", required: false },
+      username: { type: "string", required: true },
       lastLoginAt: { type: "date", required: false },
     },
   },
@@ -141,6 +143,12 @@ export const auth = betterAuth({
             if (email && !allowedEmails.includes(email)) {
               throw new Error("Access denied: email not allowed");
             }
+          }
+          // Generate username from email if not set
+          const user = session.user as any;
+          if (user && !user.username && user.email) {
+            const username = user.email.split("@")[0].toLowerCase().replace(/[^a-z0-9]/g, "");
+            await db.update(users).set({ username }).where(eq(users.id, user.id));
           }
         },
       },

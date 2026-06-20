@@ -53,7 +53,7 @@ type SharedSession = {
 };
 
 type SharedBy = {
-  username: string | null;
+  username: string;
   name: string | null;
   avatarUrl: string | null;
 } | null;
@@ -225,11 +225,11 @@ export function SharedChatContent({
                    {sharedBy.avatarUrl && (
                     <AvatarImage
                       src={sharedBy.avatarUrl}
-                      alt={sharedBy.name ?? sharedBy.username ?? 'User'}
+                      alt={sharedBy.name ?? sharedBy.username}
                     />
                   )}
                   <AvatarFallback>
-                    {(sharedBy.name ?? sharedBy.username ?? 'U')
+                    {(sharedBy.name ?? sharedBy.username)
                       .charAt(0)
                       .toUpperCase()}
                   </AvatarFallback>
