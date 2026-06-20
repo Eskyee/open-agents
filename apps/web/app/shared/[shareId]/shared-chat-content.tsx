@@ -222,14 +222,14 @@ export function SharedChatContent({
             {sharedBy && (
               <div className="flex shrink-0 items-center gap-2">
                 <Avatar size="sm">
-                  {sharedBy.avatarUrl && (
+                   {sharedBy.avatarUrl && (
                     <AvatarImage
                       src={sharedBy.avatarUrl}
-                      alt={sharedBy.name ?? sharedBy.username}
+                      alt={sharedBy.name ?? sharedBy.username ?? 'User'}
                     />
                   )}
                   <AvatarFallback>
-                    {(sharedBy.name ?? sharedBy.username)
+                    {(sharedBy.name ?? sharedBy.username ?? 'U')
                       .charAt(0)
                       .toUpperCase()}
                   </AvatarFallback>
