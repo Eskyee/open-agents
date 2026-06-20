@@ -1,6 +1,9 @@
 {
   "name": "open-agents",
   "private": true,
+  "dependencies": {
+    "next": "16.2.1"
+  },
   "workspaces": {
     "packages": [
       "apps/*",
